@@ -1,0 +1,42 @@
+apt install php7.4-fpm php7.4-gd php7.4-json php7.4-mysql php7.4-curl php7.4-mbstring php7.4-intl php-imagick php7.4-xml php7.4-zip, php7.4-opcache
+
+systemctl enable php7.4-fpm systemctl start php7.4-fpm service php7.4-fpm status
+
+mkdir -p /var/www/html vi /var/www/html/index.php
+
+index.php 안에다가
+
+붙여넣기 한후
+rm -rf /etc/nginx/sites-available/default vi /etc/nginx/sites-available/default
+
+안에다가 server { listen 80 ; listen [::]:80 ;
+
+root /var/www/html; index index.php index.html index.htm index.nginx-debian.html;
+
+server_name _; access_log /var/log/nginx/web.access.log; error_log /var/log/nginx/web.error.log;
+
+location / { try_files $uri $uri/ /index.php?$args; } error_page 404 /404.html; error_page 500 502 503 504 /50x.html; location = /50x.html { root /var/www/html; } location ~ .php$ { try_files $uri =404; fastcgi_cache off; fastcgi_split_path_info ^(.+.php)(.*)$; fastcgi_index index.php; include fastcgi_params; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; fastcgi_pass unix:/var/run/php/php7.4-fpm.sock; include mime.types; } location ~ /.ht { deny all; } } 넣기 그후 service nginx restart
+
+sudo apt update sudo apt install mysql-server
+
+cd /var/www/ git clone https://github.com/rhymix/rhymix.git
+
+mkdir rhymix/file chown -R www-data:www-data rhymix
+
+mysql -u root -p 로 mysql 들어가기
+
+create database rhymix;
+
+create user '이름'@'%' identified by '암호';
+
+grant all privileges on rhymix.* to 이름@'%'; flush privileges;
+
+안에다가 server { listen 80 ; listen [::]:80 ;
+
+root /var/www/rhymix; index index.php index.html index.htm index.nginx-debian.html;
+
+server_name _; access_log /var/log/nginx/web.access.log; error_log /var/log/nginx/web.error.log;
+
+location / { try_files $uri $uri/ /index.php?$args; } error_page 404 /404.html; error_page 500 502 503 504 /50x.html; location = /50x.html { root /var/www/html; } location ~ .php$ { try_files $uri =404; fastcgi_cache off; fastcgi_split_path_info ^(.+.php)(.*)$; fastcgi_index index.php; include fastcgi_params; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; fastcgi_pass unix:/var/run/php/php7.4-fpm.sock; include mime.types; } location ~ /.ht { deny all; } }
+
+로 바꾸고 들어가기
